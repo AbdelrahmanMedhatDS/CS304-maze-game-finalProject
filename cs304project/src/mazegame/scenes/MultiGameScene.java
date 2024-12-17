@@ -93,7 +93,7 @@ public class MultiGameScene implements GLEventListener, KeyListener {
         frame = new JFrame("Maze Game - Playing");
         GLCanvas canvas = new GLCanvas();
         frame.add(canvas);
-        frame.setSize(800, 600);
+        frame.setSize(1300, 900);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
@@ -263,28 +263,24 @@ public class MultiGameScene implements GLEventListener, KeyListener {
 
 
     private void checkGameOver() {
-        if (player1Timer.hasExpired()) {
-            System.out.println("Player 1 ran out of time!");
+        if (player2X == mazeGenerator.getExitX() && player2Y == mazeGenerator.getExitY()) {
+
             gameOver = true;
+            GameOverScene gameoverScene = new GameOverScene(2);
+            frame.dispose();
+            gameoverScene.start();
 
-//            GameOverScene gameoverScene = new GameOverScene();
-//            frame.dispose();
-//            gameoverScene.start();
+        } else if (player1X == mazeGenerator.getExitX() && player1Y == mazeGenerator.getExitY()) {
 
-        }
-
-        else if (player2Timer.hasExpired()) {
-            System.out.println("Player 2 ran out of time!");
             gameOver = true;
-//
-//            GameOverScene gameoverScene = new GameOverScene();
-//            frame.dispose();
-//            gameoverScene.start();
-        }
-
-        else if (player2Timer.hasExpired() && player1Timer.hasExpired()) {
-            System.out.println("Both Players, ran out of time!");
-            System.out.println("DRAW");
+            GameOverScene gameoverScene = new GameOverScene(1);
+            frame.dispose();
+            gameoverScene.start();
+        } else if (player2Timer.hasExpired() && player1Timer.hasExpired()) {
+            gameOver = true;
+            GameOverScene gameoverScene = new GameOverScene(5);
+            frame.dispose();
+            gameoverScene.start();
         }
     }
 
@@ -324,15 +320,9 @@ public class MultiGameScene implements GLEventListener, KeyListener {
         GL gl = drawable.getGL();
         gl.glMatrixMode(GL.GL_PROJECTION);
         gl.glLoadIdentity();
-        /*
-        - Set the coordinate system to match your maze size
-          glu.gluOrtho2D(0.0, cols , 0.0, rows);
-        - OR Calculate the extra space around the maze
-         */
 
-        int extraSpace = 3; // Adjust this value as needed
+        int extraSpace = 3;
 
-        // Set the coordinate system to include extra space
         glu.gluOrtho2D(-extraSpace, cols + extraSpace, -extraSpace, rows + extraSpace);
 
         gl.glViewport(0, 0, width, height); // Set the viewport
@@ -348,19 +338,20 @@ public class MultiGameScene implements GLEventListener, KeyListener {
             int key = e.getKeyCode();
 
             if (!gamePaused) {
-                // player_1 Moving
-                if (key == KeyEvent.VK_UP && maze[player1Y + 1][player1X] == 0) player1Y++;
-                else if (key == KeyEvent.VK_DOWN && maze[player1Y - 1][player1X] == 0) player1Y--;
-                else if (key == KeyEvent.VK_LEFT && maze[player1Y][player1X - 1] == 0) player1X--;
-                else if (key == KeyEvent.VK_RIGHT && maze[player1Y][player1X + 1] == 0) player1X++;
-
-
-                // player_2 Moving
-                if (key == KeyEvent.VK_W && maze[player2Y + 1][player2X] == 0) player2Y++;
-                else if (key == KeyEvent.VK_S && maze[player2Y - 1][player2X] == 0) player2Y--;
-                else if (key == KeyEvent.VK_A && maze[player2Y][player2X - 1] == 0) player2X--;
-                else if (key == KeyEvent.VK_D && maze[player2Y][player2X + 1] == 0) player2X++;
-
+                if (!player1Timer.hasExpired()) {
+                    // player_1 Moving
+                    if (key == KeyEvent.VK_UP && maze[player1Y + 1][player1X] == 0) player1Y++;
+                    else if (key == KeyEvent.VK_DOWN && maze[player1Y - 1][player1X] == 0) player1Y--;
+                    else if (key == KeyEvent.VK_LEFT && maze[player1Y][player1X - 1] == 0) player1X--;
+                    else if (key == KeyEvent.VK_RIGHT && maze[player1Y][player1X + 1] == 0) player1X++;
+                }
+                if (!player2Timer.hasExpired()) {
+                    // player_2 Moving
+                    if (key == KeyEvent.VK_W && maze[player2Y + 1][player2X] == 0) player2Y++;
+                    else if (key == KeyEvent.VK_S && maze[player2Y - 1][player2X] == 0) player2Y--;
+                    else if (key == KeyEvent.VK_A && maze[player2Y][player2X - 1] == 0) player2X--;
+                    else if (key == KeyEvent.VK_D && maze[player2Y][player2X + 1] == 0) player2X++;
+                }
                 // reload the game
                 if (key == KeyEvent.VK_R) {
                     generateMaze();
@@ -394,9 +385,6 @@ public class MultiGameScene implements GLEventListener, KeyListener {
             else if (key == KeyEvent.VK_ESCAPE && frame.getExtendedState() == JFrame.MAXIMIZED_BOTH) {
                 frame.setExtendedState(JFrame.NORMAL);
             }
-
-            // back to the MainMenu
-
 
             // the Pause Feature Handling
             if (key == KeyEvent.VK_P) {

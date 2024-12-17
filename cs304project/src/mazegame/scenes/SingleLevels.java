@@ -17,6 +17,7 @@ import java.io.IOException;
 public class SingleLevels implements GLEventListener, KeyListener {
     private JFrame frame;
     private GLUT glut;
+    public static int myStart=0;
 
     // صورة الأزرار
     private final String[] textureNames = {"levels.jpg"};
@@ -157,22 +158,25 @@ public class SingleLevels implements GLEventListener, KeyListener {
         mainMenuScene.start();
     }
     public void normal() {
-//        frame.dispose();
-//        GameScene singleGameScene = new GameScene(2);
-//        singleGameScene.start();
+        myStart=2;
+        frame.dispose();
+        GameScene singleGameScene = new GameScene(2);
+        singleGameScene.start();
     }
 
     public void easy() {
-//        frame.dispose();
-//        GameScene singleGameScene = new GameScene(1);
-//        singleGameScene.start();
+        myStart=1;
+        frame.dispose();
+        GameScene singleGameScene = new GameScene(1);
+        singleGameScene.start();
     }
 
 
     public void hard() {
-//        frame.dispose();
-//        GameScene singleGameScene = new GameScene(3);
-//        singleGameScene.start();
+        myStart=3;
+        frame.dispose();
+        GameScene singleGameScene = new GameScene(3);
+        singleGameScene.start();
     }
 
 
