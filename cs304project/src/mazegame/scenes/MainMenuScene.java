@@ -133,8 +133,8 @@ public class MainMenuScene implements GLEventListener, KeyListener {
 
         if (keyCode == KeyEvent.VK_1 || keyCode == e.VK_NUMPAD1 ) {
             frame.dispose();
-//            GameScene gameScene = new GameScene();
-//            gameScene.start();
+            MultiGameScene gameScene = new MultiGameScene();
+            gameScene.start();
         } else if (keyCode == KeyEvent.VK_2 || keyCode == e.VK_NUMPAD2) {
             frame.dispose();
             HowToPlayScene howToPlayScene = new HowToPlayScene();
