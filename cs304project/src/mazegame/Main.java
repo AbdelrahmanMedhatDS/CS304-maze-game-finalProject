@@ -1,10 +1,11 @@
 package mazegame;
 
 import mazegame.scenes.MainMenuScene;
+import mazegame.scenes.Menu;
 
 public class Main {
     public static void main(String[] args) {
-        MainMenuScene menu = new MainMenuScene();
+        Menu menu = new Menu();
         menu.start();
 
     }
