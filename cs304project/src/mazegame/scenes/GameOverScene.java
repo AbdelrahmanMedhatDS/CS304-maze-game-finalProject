@@ -10,11 +10,16 @@ import javax.swing.JFrame;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
-
+import mazegame.logic.musicPlayer;
+//fahmy
+/**
+ *
+ */
 public class GameOverScene implements GLEventListener, KeyListener {
     int gameOverCondition=0;
 
     private GLUT glut;
+    private musicPlayer musicPlayer = new musicPlayer();
 
     public GameOverScene(int gameOverCondition) {
         this.gameOverCondition = gameOverCondition;
@@ -26,10 +31,7 @@ public class GameOverScene implements GLEventListener, KeyListener {
     private int[] textureID = new int[textureLen];
     private TextureReader.Texture[] textures = new TextureReader.Texture[textureLen];
     public void start() {
-
-
         frame = new JFrame("Maze Game - Game Over");
-
         GLCapabilities capabilities = new GLCapabilities();
         GLCanvas canvas = new GLCanvas(capabilities);
         canvas.addGLEventListener(this);
@@ -38,7 +40,7 @@ public class GameOverScene implements GLEventListener, KeyListener {
         canvas.requestFocusInWindow();
 
         frame.add(canvas);
-        frame.setSize(800, 600);
+        frame.setSize(1300, 900);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
@@ -104,29 +106,29 @@ public class GameOverScene implements GLEventListener, KeyListener {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
         //player1 won
         if (gameOverCondition == 1) {
-
+            musicPlayer.playSoundEffect("src/utilities/sounds/winGame.wav");
             gameover(gl, glAutoDrawable,0);
-
-
         }
         //player2 won
         if (gameOverCondition == 2) {
+            musicPlayer.playSoundEffect("src/utilities/sounds/winGame.wav");
             gameover(gl, glAutoDrawable,1);
         }
         //single player won
         if (gameOverCondition == 3) {
+            musicPlayer.playSoundEffect("src/utilities/sounds/winGame.wav");
             gameover(gl, glAutoDrawable,2);
 
         }
         //Single player time expired
         if (gameOverCondition == 4) {
+            musicPlayer.playSoundEffect("src/utilities/sounds/loseGame.wav");
             gameover(gl, glAutoDrawable,4);
-
         }
         //time expired, the game ended as a draw
         if (gameOverCondition == 5) {
+            musicPlayer.playSoundEffect("src/utilities/sounds/loseGame.wav");
             gameover(gl, glAutoDrawable,3);
-
         }
     }
 

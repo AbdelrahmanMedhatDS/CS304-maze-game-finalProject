@@ -14,7 +14,7 @@ package mazegame.scenes;
 
 import com.sun.opengl.util.FPSAnimator;
 import com.sun.opengl.util.GLUT;
-import mazegame.entities.Treat;
+import mazegame.entities.Treats;
 import mazegame.logic.MazeGenerator;
 import mazegame.logic.PathFinder;
 import mazegame.logic.Timer;
@@ -32,11 +32,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import mazegame.logic.musicPlayer;
+//hogan
 public class MultiGameScene implements GLEventListener, KeyListener {
 
     private GLU glu;
     private int[][] maze;
     private MazeGenerator mazeGenerator;
+    private musicPlayer musicPlayer = new musicPlayer();
+    private musicPlayer musicPlayer2 = Menu.getMusicPlayer();
 
     private int player1X, player1Y;
     private int player2X, player2Y;
@@ -60,7 +64,7 @@ public class MultiGameScene implements GLEventListener, KeyListener {
     private int penalty = 20;
     private boolean gamePaused = false;
 
-    private List<Treat> treats = new ArrayList<>();
+    private List<Treats> treats = new ArrayList<>();
     private int numberOfTreats = 10;
     private boolean isMultiplayer = true;
 
@@ -74,7 +78,7 @@ public class MultiGameScene implements GLEventListener, KeyListener {
             this.cols = 31;
             gameTime = 120;
             penalty = 10;
-            numberOfTreats = 15;
+            numberOfTreats = 10;
 
         }
         if (levelSelection == 2) {
@@ -82,7 +86,7 @@ public class MultiGameScene implements GLEventListener, KeyListener {
             this.cols = 41;
             gameTime = 100;
             penalty = 20;
-            numberOfTreats = 20;
+            numberOfTreats = 18;
 
         }
         if (levelSelection == 3) {
@@ -90,7 +94,7 @@ public class MultiGameScene implements GLEventListener, KeyListener {
             this.cols = 51;
             gameTime = 90;
             penalty = 20;
-            numberOfTreats = 20;
+            numberOfTreats = 22;
 
         }
     }
@@ -101,6 +105,7 @@ public class MultiGameScene implements GLEventListener, KeyListener {
         System.out.println("game scene ....");
 
         frame = new JFrame("Maze Game - Playing");
+        musicPlayer.playBackgroundMusic("src/utilities/sounds/inGame.wav");
         GLCanvas canvas = new GLCanvas();
         frame.add(canvas);
         frame.setSize(1300, 900);
@@ -143,16 +148,26 @@ public class MultiGameScene implements GLEventListener, KeyListener {
         drawPlayer(gl, player1X, player1Y, 1);
         drawPlayer(gl, player2X, player2Y, 2);
 
-
-        // drawing the treats
-        for (Treat treat : treats) {
-            treat.draw(gl);
-        }
-
-
         if (gamePaused) {
             drawPauseOverlay(gl);
+
+
         }
+
+
+        // drawing the treats
+        for (Treats treat : treats) {
+            treat.draw(gl);}
+        // Display player timers
+        displayTimers(gl);
+
+        // Only update and check timers if not paused
+        if (!gamePaused) {
+            checkGameOver();
+            checkTreatsCollision();
+
+        }
+
         if (takeHint) {
             if(isP1) {
                 drawSinglePathHighlight(
@@ -171,22 +186,11 @@ public class MultiGameScene implements GLEventListener, KeyListener {
                         mazeGenerator.getPlayer2X(),
                         mazeGenerator.getExitY(),
                         mazeGenerator.getExitX(),
-                        new float[]{0.5f, 1.0f, 0.5f, 0.3f});
+                        new float[]{0.5f, .0f, 0.f, 0.3f});
             }
-        }
-
-        // Display player timers
-        displayTimers(gl);
 
 
-        // Only update and check timers if not paused
-        if (!gamePaused) {
-            checkGameOver();
-            Penalty();
-            checkTreatsCollision();
-        }
-
-    }
+    }}
 
 
     private void generateMaze() {
@@ -214,11 +218,9 @@ public class MultiGameScene implements GLEventListener, KeyListener {
                 tx = random.nextInt(rows);
                 ty = random.nextInt(cols);
             } while (maze[tx][ty] != 0); // Ensure it's on a walkable path
-            treats.add(new Treat(ty, tx));
-        }
+            treats.add(new Treats(ty, tx));
 
-
-    }
+        }}
 
     private void drawMaze(GL gl) {
         for (int row = 0; row < rows; row++) {
@@ -279,30 +281,6 @@ public class MultiGameScene implements GLEventListener, KeyListener {
         gl.glEnd();
     }
 
-
-    private void checkTreatsCollision() {
-        Iterator<Treat> iterator = treats.iterator();
-        while (iterator.hasNext()) {
-            Treat treat = iterator.next();
-            if (player1X == treat.getX() && player1Y == treat.getY()) {
-                if (treat.effect == 1) player1Timer.addTime(10);
-                else if (treat.effect == 2 && isMultiplayer) player2Timer.reduceTime(10);
-                else if (treat.effect == 3 && isMultiplayer) resetPlayer2();
-                else player1Timer.addTime(10);
-
-                iterator.remove(); // Safely remove the current treat
-            }
-
-            if (player2X == treat.getX() && player2Y == treat.getY()) {
-                if (treat.effect == 1) player2Timer.addTime(10);
-                else if (treat.effect == 2 && isMultiplayer) player1Timer.reduceTime(10);
-                else if (treat.effect == 3 && isMultiplayer) resetPlayer1();
-                else player2Timer.addTime(10);
-
-                iterator.remove(); // Safely remove the current treat
-            }
-        }
-    }
     private void displayTimers(GL gl) {
         GLUT glut = new GLUT();
 
@@ -317,37 +295,13 @@ public class MultiGameScene implements GLEventListener, KeyListener {
         glut.glutBitmapString(GLUT.BITMAP_HELVETICA_18, "P2 Time: " + player2Timer.getTimeLeft() + "s");
     }
 
-
-
-
-    private void checkGameOver() {
-        if (player2X == mazeGenerator.getExitX() && player2Y == mazeGenerator.getExitY()) {
-
-            gameOver = true;
-            GameOverScene gameoverScene = new GameOverScene(2);
-            frame.dispose();
-            gameoverScene.start();
-
-        } else if (player1X == mazeGenerator.getExitX() && player1Y == mazeGenerator.getExitY()) {
-
-            gameOver = true;
-            GameOverScene gameoverScene = new GameOverScene(1);
-            frame.dispose();
-            gameoverScene.start();
-        } else if (player2Timer.hasExpired() && player1Timer.hasExpired()) {
-            gameOver = true;
-            GameOverScene gameoverScene = new GameOverScene(5);
-            frame.dispose();
-            gameoverScene.start();
-        }
-    }
-
-
     private void drawSinglePathHighlight(GL gl, int startY, int startX, int endY, int endX, float[] color) {
         PathFinder pathFinder = new PathFinder(maze);
 
+        // Find the path
         List<int[]> path = pathFinder.findPath(startY, startX, endY, endX);
 
+        // Draw the path
         for (int[] cell : path) {
             int x = cell[0];
             int y = cell[1];
@@ -359,6 +313,33 @@ public class MultiGameScene implements GLEventListener, KeyListener {
             gl.glVertex2f(x + 1, y + 1);
             gl.glVertex2f(x, y + 1);
             gl.glEnd();
+        }
+    }
+
+
+
+
+    private void checkGameOver() {
+        if (player2X == mazeGenerator.getExitX() && player2Y == mazeGenerator.getExitY()) {
+            System.out.println("Player 1 ran out of time!");
+            gameOver = true;
+            GameOverScene gameoverScene = new GameOverScene(2);
+            frame.dispose();
+            gameoverScene.start();
+            musicPlayer.stopBackgroundMusic();
+        } else if (player1X == mazeGenerator.getExitX() && player1Y == mazeGenerator.getExitY()) {
+            System.out.println("Player 2 ran out of time!");
+            gameOver = true;
+            GameOverScene gameoverScene = new GameOverScene(1);
+            frame.dispose();
+            gameoverScene.start();
+            musicPlayer.stopBackgroundMusic();
+        } else if (player2Timer.hasExpired() && player1Timer.hasExpired()) {
+            gameOver = true;
+            GameOverScene gameoverScene = new GameOverScene(5);
+            frame.dispose();
+            gameoverScene.start();
+            musicPlayer.stopBackgroundMusic();
         }
     }
     private void resetPlayer1() {
@@ -383,16 +364,10 @@ public class MultiGameScene implements GLEventListener, KeyListener {
         gl.glEnd();
     }
 
-    private void Penalty() {
 
-        if (whoTakeTheHint == 1) {
-            player1Timer.reduceTime(penalty);
-        }
-        else if (whoTakeTheHint == 2){
-            player2Timer.reduceTime(penalty);
-        }
-        whoTakeTheHint = 0;
-    }
+
+
+
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         System.out.println("reshape");
@@ -400,14 +375,43 @@ public class MultiGameScene implements GLEventListener, KeyListener {
         GL gl = drawable.getGL();
         gl.glMatrixMode(GL.GL_PROJECTION);
         gl.glLoadIdentity();
+        /*
+        - Set the coordinate system to match your maze size
+          glu.gluOrtho2D(0.0, cols , 0.0, rows);
+        - OR Calculate the extra space around the maze
+         */
 
-        int extraSpace = 3;
+        int extraSpace = 3; // Adjust this value as needed
 
+        // Set the coordinate system to include extra space
         glu.gluOrtho2D(-extraSpace, cols + extraSpace, -extraSpace, rows + extraSpace);
 
         gl.glViewport(0, 0, width, height); // Set the viewport
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glLoadIdentity();
+    }
+    private void checkTreatsCollision() {
+        Iterator<Treats> iterator = treats.iterator();
+        while (iterator.hasNext()) {
+            Treats treat = iterator.next();
+            if (player1X == treat.getX() && player1Y == treat.getY()) {
+                if (treat.effect == 1) player1Timer.addTime(10);
+                else if (treat.effect == 2 && isMultiplayer) player2Timer.reduceTime(10);
+                else if (treat.effect == 3 && isMultiplayer) resetPlayer2();
+                else player1Timer.addTime(10);
+
+                iterator.remove(); // Safely remove the current treat
+            }
+
+            if (player2X == treat.getX() && player2Y == treat.getY()) {
+                if (treat.effect == 1) player2Timer.addTime(10);
+                else if (treat.effect == 2 && isMultiplayer) player1Timer.reduceTime(10);
+                else if (treat.effect == 3 && isMultiplayer) resetPlayer1();
+                else player2Timer.addTime(10);
+
+                iterator.remove(); // Safely remove the current treat
+            }
+        }
     }
 
 
@@ -418,15 +422,16 @@ public class MultiGameScene implements GLEventListener, KeyListener {
             int key = e.getKeyCode();
 
             if (!gamePaused) {
+                // player_1 Moving
                 if (!player1Timer.hasExpired()) {
-                    // player_1 Moving
                     if (key == KeyEvent.VK_UP && maze[player1Y + 1][player1X] == 0) player1Y++;
                     else if (key == KeyEvent.VK_DOWN && maze[player1Y - 1][player1X] == 0) player1Y--;
                     else if (key == KeyEvent.VK_LEFT && maze[player1Y][player1X - 1] == 0) player1X--;
                     else if (key == KeyEvent.VK_RIGHT && maze[player1Y][player1X + 1] == 0) player1X++;
                 }
+
+                // player_2 Moving
                 if (!player2Timer.hasExpired()) {
-                    // player_2 Moving
                     if (key == KeyEvent.VK_W && maze[player2Y + 1][player2X] == 0) player2Y++;
                     else if (key == KeyEvent.VK_S && maze[player2Y - 1][player2X] == 0) player2Y--;
                     else if (key == KeyEvent.VK_A && maze[player2Y][player2X - 1] == 0) player2X--;
@@ -464,6 +469,15 @@ public class MultiGameScene implements GLEventListener, KeyListener {
             if (key == KeyEvent.VK_F) frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
             else if (key == KeyEvent.VK_ESCAPE && frame.getExtendedState() == JFrame.MAXIMIZED_BOTH) {
                 frame.setExtendedState(JFrame.NORMAL);
+            }
+
+            // back to the MainMenu
+            if (key == KeyEvent.VK_BACK_SPACE) {
+                frame.dispose();
+                Levels level = new Levels();
+                level.start();
+                musicPlayer.stopBackgroundMusic();
+                musicPlayer2.playBackgroundMusic("src/utilities/sounds/home.wav");
             }
 
             // the Pause Feature Handling

@@ -10,7 +10,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import java.io.IOException;
-
+import mazegame.logic.musicPlayer;
 
 
 import static utilities.texture.TextureReader.readTexture;
@@ -19,13 +19,12 @@ public class HowToPlayScene implements GLEventListener, KeyListener {
     private JFrame frame;
     private GLCanvas canvas;
     private GLUT glut;
-
+    private musicPlayer musicPlayer= new musicPlayer();
 
     private final String[] textureNames = {"howtoplay.jpg"};
     private final int textureLen = textureNames.length;
     private int[] textureID = new int[textureLen];
     private TextureReader.Texture[] textures = new TextureReader.Texture[textureLen];
-
     public void start() {
         System.out.println("instructions ....");
 
@@ -48,7 +47,7 @@ public class HowToPlayScene implements GLEventListener, KeyListener {
     public void init(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
 
-        gl.glClearColor(25 / 255f, 29 / 255f, 38 / 255f, 0);
+        gl.glClearColor(25/255f, 29/255f, 38/255f,0);
         gl.glEnable(GL.GL_TEXTURE_2D);
         gl.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
         gl.glGenTextures(textureLen, textureID, 0);
@@ -82,10 +81,10 @@ public class HowToPlayScene implements GLEventListener, KeyListener {
     public void display(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
         gl.glClear(GL.GL_COLOR_BUFFER_BIT);
-        drawBackground(gl, drawable, 0);
+        drawBackground(gl, drawable,0);
     }
 
-    public void drawBackground(GL gl, GLAutoDrawable drawable, int textureIndex) {
+    public void drawBackground(GL gl, GLAutoDrawable drawable ,int textureIndex) {
         gl.glEnable(GL.GL_BLEND);
         gl.glBindTexture(GL.GL_TEXTURE_2D, textureID[textureIndex]);
 
@@ -106,6 +105,16 @@ public class HowToPlayScene implements GLEventListener, KeyListener {
 
         gl.glDisable(GL.GL_BLEND);
     }
+
+    public void keyPressed(KeyEvent e) {
+        int keyCode = e.getKeyCode();
+        if (keyCode == KeyEvent.VK_ESCAPE||keyCode == KeyEvent.VK_BACK_SPACE) {
+            musicPlayer.playSoundEffect("src/utilities/sounds/toy-button.wav");
+            frame.dispose();
+            Menu mainMenu = new Menu();
+            mainMenu.start();
+        }
+    }
     @Override
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {}
     @Override
@@ -114,9 +123,4 @@ public class HowToPlayScene implements GLEventListener, KeyListener {
     public void keyReleased(KeyEvent e) {}
     @Override
     public void keyTyped(KeyEvent e) {}
-
-    @Override
-    public void keyPressed(KeyEvent e) {
-
-    }
 }

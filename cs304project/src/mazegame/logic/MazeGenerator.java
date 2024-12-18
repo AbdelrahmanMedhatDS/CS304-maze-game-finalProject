@@ -1,16 +1,30 @@
 package mazegame.logic;
 
+import mazegame.entities.Treats;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public class MazeGenerator {
     private int[][] maze;
-    private final int rows, cols;
+    private int rows, cols;
+
+    public void setRows(int rows) {
+        this.rows = rows;
+    }
+
+    public void setCols(int cols) {
+        this.cols = cols;
+    }
+
     private Random rand;
 
     // Player and exit position attributes
     private int player1X, player1Y;
     private int player2X, player2Y;
     private int exitX, exitY;
+
 
     public MazeGenerator(int rows, int cols) {
         // Ensure odd dimensions for proper maze generation
